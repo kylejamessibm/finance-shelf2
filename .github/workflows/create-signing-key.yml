@@ -1,0 +1,44 @@
+
+name: Create Finance Shelf Test Key
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  create-key:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Generate stable debug key
+        shell: bash
+        run: |
+          keytool -genkeypair \
+            -keystore finance-shelf-debug.keystore \
+            -storetype JKS \
+            -storepass android \
+            -keypass android \
+            -alias AndroidDebugKey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Finance Shelf Debug, OU=Development, O=Finance Shelf, C=PK"
+
+          keytool -list -v \
+            -keystore finance-shelf-debug.keystore \
+            -storepass android \
+            -alias AndroidDebugKey
+
+      - name: Download signing key
+        uses: actions/upload-artifact@v4
+        with:
+          name: finance-shelf-debug-key
+          path: finance-shelf-debug.keystore
+          retention-days: 1
