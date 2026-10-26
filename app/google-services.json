@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "857971562204-s5qrb3hs87piumnh06disr33cshsnr4a.apps.googleusercontent.com",
+          "client_id": "857971562204-iaccq1p7qmva4jaqcanm6miq8nr18m00.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.officefinance.app",
-            "certificate_hash": "177549eb8f6c44b5d343ddb4b2578a8ab4b556be"
+            "certificate_hash": "909e86079f30231e57e72366748d876def6d5b47"
           }
         },
         {
