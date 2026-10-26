@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "857971562204",
+    "project_id": "officefinance-cc4e1",
+    "storage_bucket": "officefinance-cc4e1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:857971562204:android:438b98bfb6fe03010c4619",
+        "android_client_info": {
+          "package_name": "com.officefinance.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "857971562204-s5qrb3hs87piumnh06disr33cshsnr4a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.officefinance.app",
+            "certificate_hash": "177549eb8f6c44b5d343ddb4b2578a8ab4b556be"
+          }
+        },
+        {
+          "client_id": "857971562204-0lhcoal3elrmj79mdi7en4nsb8mltrtk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGhhDp_t50lc_-0YqcwYxyYxt_XBkrVLk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "857971562204-0lhcoal3elrmj79mdi7en4nsb8mltrtk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
