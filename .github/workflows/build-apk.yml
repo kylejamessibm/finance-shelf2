@@ -1,53 +1,110 @@
-name: Build Android APK
+
+name: Build Finance Shelf APK
+
 on:
   workflow_dispatch:
   push:
     branches: [main]
+
 permissions:
   contents: read
+
 jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
+
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
+
       - name: Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+
       - name: Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+
+      - name: Install permanent debug signing key
+        shell: bash
+        env:
+          SIGNING_KEY: ${{ secrets.FINANCE_SHELF_DEBUG_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$SIGNING_KEY" ]; then
+            echo "Missing FINANCE_SHELF_DEBUG_KEY secret"
+            exit 1
+          fi
+
+          mkdir -p "$HOME/.config/.android"
+          mkdir -p "$HOME/.android"
+
+          printf '%s' "$SIGNING_KEY" | base64 --decode \
+            > "$HOME/.config/.android/debug.keystore"
+
+          cp "$HOME/.config/.android/debug.keystore" \
+             "$HOME/.android/debug.keystore"
+
+          chmod 600 "$HOME/.config/.android/debug.keystore"
+          chmod 600 "$HOME/.android/debug.keystore"
+
+          keytool -list \
+            -keystore "$HOME/.config/.android/debug.keystore" \
+            -storepass android \
+            -alias AndroidDebugKey
+
       - name: Android SDK
         shell: bash
         run: |
           set -e
+
           export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
           export ANDROID_SDK_ROOT="$ANDROID_HOME"
-          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager 2>/dev/null | head -n 1 || true)
+
+          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" \
+            -type f -name sdkmanager 2>/dev/null | head -n 1 || true)
+
           if [ -z "$SDKMANAGER" ]; then
             mkdir -p "$RUNNER_TEMP/android-sdk/cmdline-tools"
-            curl -fL --retry 3 "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip" -o "$RUNNER_TEMP/cmdline-tools.zip"
-            unzip -q "$RUNNER_TEMP/cmdline-tools.zip" -d "$RUNNER_TEMP/android-tools"
-            mv "$RUNNER_TEMP/android-tools/cmdline-tools" "$RUNNER_TEMP/android-sdk/cmdline-tools/latest"
+
+            curl -fL --retry 3 \
+              "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip" \
+              -o "$RUNNER_TEMP/cmdline-tools.zip"
+
+            unzip -q "$RUNNER_TEMP/cmdline-tools.zip" \
+              -d "$RUNNER_TEMP/android-tools"
+
+            mv "$RUNNER_TEMP/android-tools/cmdline-tools" \
+              "$RUNNER_TEMP/android-sdk/cmdline-tools/latest"
+
             export ANDROID_HOME="$RUNNER_TEMP/android-sdk"
             export ANDROID_SDK_ROOT="$ANDROID_HOME"
+
             SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           fi
-          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --install "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+
+          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" \
+            --install "platforms;android-35" \
+            "build-tools;35.0.0" "platform-tools"
+
           echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
           echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
-      - name: Compile debug APK
-        run: gradle --no-daemon --stacktrace :app:assembleDebug
+
       - name: Show signing fingerprints
         run: gradle --no-daemon :app:signingReport
+
+      - name: Compile Finance Shelf APK
+        run: gradle --no-daemon --stacktrace :app:assembleDebug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: OfficeFinance-V4-debug
+          name: FinanceShelf-Debug-APK
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
